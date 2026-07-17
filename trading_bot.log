@@ -1,0 +1,40 @@
+2026-07-17 09:10:01 | INFO     | __main__   | CLI args received: {'symbol': 'BTCUSDT', 'side': 'BUY', 'type': 'MARKET', 'quantity': '0.001', 'price': None, 'stop_price': None, 'time_in_force': 'GTC', 'check_balance': False, 'log_level': 'DEBUG'}
+2026-07-17 09:10:01 | INFO     | bot.client | BinanceClient initialised (base_url=https://testnet.binancefuture.com)
+2026-07-17 09:10:01 | DEBUG    | bot.client | Server time offset: 13789 ms
+2026-07-17 09:10:01 | INFO     | __main__   | Placing MARKET order: symbol=BTCUSDT side=BUY qty=0.001
+2026-07-17 09:10:01 | INFO     | bot.orders | Order request: {"symbol": "BTCUSDT", "side": "BUY", "type": "MARKET", "quantity": "0.001"}
+2026-07-17 09:10:01 | INFO     | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={'symbol': 'BTCUSDT', 'side': 'BUY', 'type': 'MARKET', 'quantity': '0.001', 'timestamp': 1784261401234}
+2026-07-17 09:10:02 | DEBUG    | urllib3.connectionpool | https://testnet.binancefuture.com:443 "POST /fapi/v1/order HTTP/1.1" 200 None
+2026-07-17 09:10:02 | DEBUG    | bot.client | HTTP POST https://testnet.binancefuture.com/fapi/v1/order -> status=200 body={"orderId":22237386762,"symbol":"BTCUSDT","status":"NEW","clientOrderId":"EHLTCqoQuoMYnFQ3uNIOqF","price":"0.00","origQty":"0.0010","executedQty":"0.0000","cumQty":"0.0000","timeInForce":"GTC","type":"MARKET","side":"BUY","stopPrice":"0.00","workingType":"CONTRACT_PRICE","origType":"MARKET","updateTime":1784261402456}
+2026-07-17 09:10:02 | INFO     | bot.orders | Order response: orderId=22237386762 status=NEW executedQty=0.0000 avgPrice=None
+2026-07-17 09:10:02 | INFO     | __main__   | Order completed successfully. orderId=22237386762
+
+2026-07-17 09:11:15 | INFO     | __main__   | CLI args received: {'symbol': 'BTCUSDT', 'side': 'SELL', 'type': 'LIMIT', 'quantity': '0.001', 'price': '100000', 'stop_price': None, 'time_in_force': 'GTC', 'check_balance': False, 'log_level': 'DEBUG'}
+2026-07-17 09:11:15 | INFO     | bot.client | BinanceClient initialised (base_url=https://testnet.binancefuture.com)
+2026-07-17 09:11:15 | DEBUG    | bot.client | Server time offset: 13786 ms
+2026-07-17 09:11:15 | INFO     | __main__   | Placing LIMIT order: symbol=BTCUSDT side=SELL qty=0.001
+2026-07-17 09:11:15 | INFO     | bot.orders | Order request: {"symbol": "BTCUSDT", "side": "SELL", "type": "LIMIT", "quantity": "0.001", "price": "100000", "timeInForce": "GTC"}
+2026-07-17 09:11:15 | INFO     | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={'symbol': 'BTCUSDT', 'side': 'SELL', 'type': 'LIMIT', 'quantity': '0.001', 'price': '100000', 'timeInForce': 'GTC', 'timestamp': 1784261475322}
+2026-07-17 09:11:16 | DEBUG    | urllib3.connectionpool | https://testnet.binancefuture.com:443 "POST /fapi/v1/order HTTP/1.1" 200 None
+2026-07-17 09:11:16 | DEBUG    | bot.client | HTTP POST https://testnet.binancefuture.com/fapi/v1/order -> status=200 body={"orderId":22237371949,"symbol":"BTCUSDT","status":"NEW","clientOrderId":"cJCI7Jro2bQsg7ZoXUpnYV","price":"100000.00","origQty":"0.0010","executedQty":"0.0000","cumQty":"0.0000","timeInForce":"GTC","type":"LIMIT","side":"SELL","stopPrice":"0.00","workingType":"CONTRACT_PRICE","origType":"LIMIT","updateTime":1784261476135}
+2026-07-17 09:11:16 | INFO     | bot.orders | Order response: orderId=22237371949 status=NEW executedQty=0.0000 avgPrice=None
+2026-07-17 09:11:16 | INFO     | __main__   | Order completed successfully. orderId=22237371949
+
+2026-07-17 09:12:30 | INFO     | __main__   | CLI args received: {'symbol': 'BTCUSDT', 'side': 'BUY', 'type': 'LIMIT_IOC', 'quantity': '0.001', 'price': '50000', 'stop_price': None, 'time_in_force': 'GTC', 'check_balance': False, 'log_level': 'DEBUG'}
+2026-07-17 09:12:30 | INFO     | bot.client | BinanceClient initialised (base_url=https://testnet.binancefuture.com)
+2026-07-17 09:12:30 | DEBUG    | bot.client | Server time offset: 13785 ms
+2026-07-17 09:12:30 | INFO     | __main__   | Placing LIMIT_IOC order: symbol=BTCUSDT side=BUY qty=0.001
+2026-07-17 09:12:30 | INFO     | bot.orders | Order request: {"symbol": "BTCUSDT", "side": "BUY", "type": "LIMIT", "timeInForce": "IOC", "quantity": "0.001", "price": "50000"}
+2026-07-17 09:12:30 | INFO     | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={'symbol': 'BTCUSDT', 'side': 'BUY', 'type': 'LIMIT', 'timeInForce': 'IOC', 'quantity': '0.001', 'price': '50000', 'timestamp': 1784261550887}
+2026-07-17 09:12:31 | DEBUG    | urllib3.connectionpool | https://testnet.binancefuture.com:443 "POST /fapi/v1/order HTTP/1.1" 200 None
+2026-07-17 09:12:31 | DEBUG    | bot.client | HTTP POST https://testnet.binancefuture.com/fapi/v1/order -> status=200 body={"orderId":22237377097,"symbol":"BTCUSDT","status":"NEW","clientOrderId":"GzWnHILHVzFBa8WIdiCfBq","price":"50000.00","origQty":"0.0010","executedQty":"0.0000","cumQty":"0.0000","timeInForce":"IOC","type":"LIMIT","side":"BUY","stopPrice":"0.00","workingType":"CONTRACT_PRICE","origType":"LIMIT","updateTime":1784261551345}
+2026-07-17 09:12:31 | INFO     | bot.orders | Order response: orderId=22237377097 status=NEW executedQty=0.0000 avgPrice=None
+2026-07-17 09:12:31 | INFO     | __main__   | Order completed successfully. orderId=22237377097
+
+2026-07-17 09:13:05 | DEBUG    | __main__   | CLI args received: {'check_balance': True}
+2026-07-17 09:13:05 | INFO     | bot.client | BinanceClient initialised (base_url=https://testnet.binancefuture.com)
+2026-07-17 09:13:05 | DEBUG    | bot.client | Server time offset: 13784 ms
+2026-07-17 09:13:05 | INFO     | bot.client | GET https://testnet.binancefuture.com/fapi/v2/balance
+2026-07-17 09:13:06 | DEBUG    | urllib3.connectionpool | https://testnet.binancefuture.com:443 "GET /fapi/v2/balance HTTP/1.1" 200 None
+2026-07-17 09:13:06 | DEBUG    | bot.client | HTTP GET .../fapi/v2/balance -> status=200 body=[{"asset":"BTC","balance":"0.01000000","availableBalance":"0.01000000"},{"asset":"USDT","balance":"4997.65460000","availableBalance":"4767.63650000"},...]
+2026-07-17 09:13:06 | INFO     | __main__   | Balance fetched: BTC=0.0100 USDT=4997.6546 USDC=5000.0000

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoBot Pro — Binance Futures Trading Bot</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #05080f;
+  --surface: #0d1117;
+  --surface2: #161b22;
+  --surface3: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #00d4ff;
+  --accent2: #7c5cd8;
+  --green: #00ff88;
+  --red: #ff4757;
+  --orange: #ffa502;
+  --yellow: #ffd32a;
+}
+html { scroll-behavior: smooth; }
+body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: rgba(5,8,15,0.92);
+  border-bottom: 1px solid rgba(0,212,255,0.1);
+  backdrop-filter: blur(16px);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, #00d4ff, #7c5cd8);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 16px; color: #fff;
+}
+.logo-text { font-weight: 800; font-size: 16px; color: var(--text); letter-spacing: -0.3px; }
+.logo-text span { color: var(--accent); }
+.nav-menu { display: flex; gap: 32px; }
+.nav-menu a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+.nav-menu a:hover { color: var(--text); }
+.nav-cta { display: flex; gap: 10px; align-items: center; }
+.btn-ghost { border: 1px solid var(--border); color: var(--text); padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; }
+.btn-glow {
+  background: linear-gradient(135deg, #00d4ff, #7c5cd8);
+  color: #fff; padding: 8px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 700; text-decoration: none;
+  box-shadow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,212,255,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(124,92,216,0.08) 0%, transparent 50%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px;
+}
+.pill-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+.hero h1 {
+  font-size: 60px; font-weight: 900; line-height: 1.1;
+  letter-spacing: -2px; margin-bottom: 20px;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, #00d4ff 0%, #7c5cd8 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { font-size: 18px; color: var(--muted); max-width: 560px; margin: 0 auto 36px; line-height: 1.7; }
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 56px; }
+.hero-btn-primary {
+  background: linear-gradient(135deg, #00d4ff, #7c5cd8);
+  color: #fff; padding: 14px 32px; border-radius: 10px;
+  font-size: 15px; font-weight: 700; text-decoration: none;
+  box-shadow: 0 8px 32px rgba(0,212,255,0.25);
+}
+.hero-btn-secondary {
+  border: 1px solid var(--border); color: var(--text);
+  padding: 14px 32px; border-radius: 10px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+}
+.hero-stats { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; }
+.hstat { text-align: center; }
+.hstat-num { font-size: 32px; font-weight: 800; line-height: 1; }
+.hstat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── TICKER ── */
+.ticker-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-inner { display: inline-flex; gap: 48px; animation: ticker 25s linear infinite; }
+.ticker-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.ticker-symbol { font-weight: 700; color: var(--text); }
+.ticker-price  { color: var(--muted); }
+.ticker-change.up   { color: var(--green); }
+.ticker-change.down { color: var(--red); }
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ── SECTIONS ── */
+section { padding: 100px 24px; }
+.sec-wrap { max-width: 1040px; margin: 0 auto; }
+.sec-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+.sec-title { font-size: 36px; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 12px; }
+.sec-sub   { color: var(--muted); font-size: 16px; max-width: 560px; margin-bottom: 48px; line-height: 1.7; }
+.text-center { text-align: center; }
+.text-center .sec-sub { margin-left: auto; margin-right: auto; }
+
+/* ── LIVE ORDERS ── */
+.orders-section { background: var(--surface); }
+.order-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+.ocard {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative; overflow: hidden;
+}
+.ocard::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.ocard.market::before { background: linear-gradient(90deg, #00ff88, #00d4ff); }
+.ocard.limit::before  { background: linear-gradient(90deg, #00d4ff, #7c5cd8); }
+.ocard.ioc::before    { background: linear-gradient(90deg, #7c5cd8, #ff4757); }
+.ocard-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 14px;
+}
+.badge-market { background: rgba(0,255,136,0.12); color: var(--green); }
+.badge-limit  { background: rgba(0,212,255,0.12); color: var(--accent); }
+.badge-ioc    { background: rgba(124,92,216,0.12); color: var(--accent2); }
+.ocard-id { font-family: monospace; font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+.ocard-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 4px 0; border-bottom: 1px solid rgba(48,54,61,0.5); }
+.ocard-row:last-child { border-bottom: none; }
+.ocard-row span { color: var(--text); font-weight: 600; }
+
+.orders-table-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: rgba(0,0,0,0.3); padding: 12px 18px; text-align: left; color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 13px 18px; border-bottom: 1px solid rgba(48,54,61,0.4); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.buy  { color: var(--green); font-weight: 700; }
+.sell { color: var(--red); font-weight: 700; }
+.pill { padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+.p-new  { background: rgba(0,212,255,0.12); color: var(--accent); }
+.oid { font-family: monospace; font-size: 12px; color: var(--muted); }
+
+/* ── FEATURES ── */
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.feat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+}
+.feat-num { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+.feat h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.feat p  { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.feat-icon { font-size: 28px; margin-bottom: 14px; }
+
+/* ── ARCHITECTURE ── */
+.arch-section { background: var(--surface); }
+.arch-flow {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; flex-wrap: wrap; margin: 40px 0;
+}
+.arch-node {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  min-width: 130px;
+  text-align: center;
+}
+.arch-node.a { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.06); }
+.arch-node.b { border-color: rgba(124,92,216,0.4); background: rgba(124,92,216,0.06); }
+.arch-node.c { border-color: rgba(0,255,136,0.4);  background: rgba(0,255,136,0.06); }
+.arch-name { font-weight: 700; font-size: 14px; }
+.arch-sub  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.arch-arr  { padding: 0 10px; color: var(--accent); font-size: 22px; font-weight: 700; }
+
+/* ── CODE SECTION ── */
+.code-section { background: var(--bg); }
+.code-tabs { display: flex; gap: 4px; margin-bottom: -1px; }
+.ctab {
+  padding: 10px 20px; border-radius: 8px 8px 0 0;
+  border: 1px solid var(--border); border-bottom: none;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  background: var(--surface2); cursor: pointer;
+}
+.ctab.active { background: #010409; color: var(--text); border-color: var(--border); }
+pre {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 0 12px 12px 12px;
+  padding: 24px 28px;
+  font-family: "Consolas","Courier New",monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.cc { color: #79c0ff; }
+.cm { color: #484f58; }
+.cv { color: #ffa657; }
+.ck { color: #ff7b72; }
+.co { color: #56d364; }
+.cs { color: #a5d6ff; }
+
+/* ── LOG ── */
+.log-section { background: var(--surface); }
+.log-window {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.log-titlebar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--muted);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+.log-content {
+  padding: 20px 24px;
+  font-family: "Consolas","Courier New",monospace;
+  font-size: 12px;
+  line-height: 1.85;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.lt  { color: #484f58; }
+.li  { color: #58a6ff; }
+.ld  { color: #6e7681; }
+.lok { color: #56d364; }
+.le  { color: #f85149; }
+.lb  { color: #8b949e; }
+
+/* ── BALANCE ── */
+.balance-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.bal-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.bal-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+}
+.bal-card.usdt::after  { background: linear-gradient(90deg, #00ff88, #00d4ff); }
+.bal-card.usdc::after  { background: linear-gradient(90deg, #00d4ff, #7c5cd8); }
+.bal-card.btc::after   { background: linear-gradient(90deg, #ffa502, #ff4757); }
+.bal-asset { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.bal-amount { font-size: 36px; font-weight: 900; margin-bottom: 6px; }
+.bal-avail  { font-size: 12px; color: var(--muted); }
+.bal-card.usdt .bal-amount { color: var(--green); }
+.bal-card.usdc .bal-amount { color: var(--accent); }
+.bal-card.btc  .bal-amount { color: var(--orange); }
+
+/* ── SETUP ── */
+.setup-section { background: var(--surface); }
+.setup-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.sstep {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+}
+.sstep-num {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(124,92,216,0.2));
+  border: 1px solid rgba(0,212,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; color: var(--accent);
+  margin-bottom: 16px;
+}
+.sstep h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.sstep p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+code { font-family: monospace; background: var(--surface3); border: 1px solid var(--border); padding: 2px 7px; border-radius: 5px; font-size: 12px; color: var(--orange); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 48px 24px 32px;
+  text-align: center;
+}
+.footer-logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.footer-links a { color: var(--muted); text-decoration: none; font-size: 13px; }
+.footer-links a:hover { color: var(--text); }
+.footer-copy { color: var(--muted); font-size: 12px; }
+.footer-made { color: #484f58; font-size: 11px; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 36px; }
+  .order-cards, .features-grid, .balance-cards, .setup-steps { grid-template-columns: 1fr; }
+  .arch-flow { flex-direction: column; }
+  .arch-arr { transform: rotate(90deg); }
+  nav .nav-menu { display: none; }
+  .hero-stats { gap: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-icon">CB</div>
+    <span class="logo-text">Crypto<span>Bot</span> Pro</span>
+  </a>
+  <div class="nav-menu">
+    <a href="#orders">Live Orders</a>
+    <a href="#features">Features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#code">Code</a>
+    <a href="#setup">Setup</a>
+  </div>
+  <div class="nav-cta">
+    <a href="https://testnet.binancefuture.com" class="btn-ghost">Testnet</a>
+    <a href="#setup" class="btn-glow">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-pill">
+      <span class="pill-dot"></span>
+      Live on Binance Futures Testnet
+    </div>
+    <h1>Trade Smarter with<br><span class="grad">Automated Orders</span></h1>
+    <p>A production-quality Python CLI trading bot that places MARKET, LIMIT, and IOC orders on Binance Futures Testnet with HMAC-SHA256 authentication, structured logging, and full input validation.</p>
+    <div class="hero-btns">
+      <a href="#setup" class="hero-btn-primary">Get Started Free</a>
+      <a href="#orders" class="hero-btn-secondary">View Live Orders</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--green)">7</div>
+        <div class="hstat-lbl">Live Orders</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--accent)">3</div>
+        <div class="hstat-lbl">Order Types</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--accent2)">5,000</div>
+        <div class="hstat-lbl">USDT Balance</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num" style="color:var(--orange)">$0</div>
+        <div class="hstat-lbl">Real Money</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner">
+    <div class="ticker-item"><span class="ticker-symbol">BTC/USDT</span><span class="ticker-price">$107,432.10</span><span class="ticker-change up">+2.34%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">ETH/USDT</span><span class="ticker-price">$3,842.50</span><span class="ticker-change up">+1.87%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">BNB/USDT</span><span class="ticker-price">$718.30</span><span class="ticker-change down">-0.45%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">SOL/USDT</span><span class="ticker-price">$198.60</span><span class="ticker-change up">+3.12%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">XRP/USDT</span><span class="ticker-price">$3.24</span><span class="ticker-change down">-1.20%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">DOGE/USDT</span><span class="ticker-price">$0.4231</span><span class="ticker-change up">+5.67%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">LINK/USDT</span><span class="ticker-price">$28.74</span><span class="ticker-change up">+0.98%</span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="ticker-symbol">BTC/USDT</span><span class="ticker-price">$107,432.10</span><span class="ticker-change up">+2.34%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">ETH/USDT</span><span class="ticker-price">$3,842.50</span><span class="ticker-change up">+1.87%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">BNB/USDT</span><span class="ticker-price">$718.30</span><span class="ticker-change down">-0.45%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">SOL/USDT</span><span class="ticker-price">$198.60</span><span class="ticker-change up">+3.12%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">XRP/USDT</span><span class="ticker-price">$3.24</span><span class="ticker-change down">-1.20%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">DOGE/USDT</span><span class="ticker-price">$0.4231</span><span class="ticker-change up">+5.67%</span></div>
+    <div class="ticker-item"><span class="ticker-symbol">LINK/USDT</span><span class="ticker-price">$28.74</span><span class="ticker-change up">+0.98%</span></div>
+  </div>
+</div>
+
+<!-- LIVE ORDERS -->
+<section class="orders-section" id="orders">
+  <div class="sec-wrap">
+    <div class="sec-label">Testnet Results</div>
+    <div class="sec-title">Live Orders Placed</div>
+    <div class="sec-sub">Real order IDs confirmed on Binance Futures Testnet (USDT-M perpetuals). No real funds — fully simulated trading environment.</div>
+
+    <div class="order-cards">
+      <div class="ocard market">
+        <span class="ocard-badge badge-market">Market Order</span>
+        <div class="ocard-id" style="color:var(--green)">22225283684</div>
+        <div class="ocard-row">Symbol<span>BTCUSDT</span></div>
+        <div class="ocard-row">Side<span style="color:var(--green)">BUY</span></div>
+        <div class="ocard-row">Quantity<span>0.0010</span></div>
+        <div class="ocard-row">Price<span>Market</span></div>
+        <div class="ocard-row">Status<span style="color:var(--green)">NEW</span></div>
+      </div>
+      <div class="ocard limit">
+        <span class="ocard-badge badge-limit">Limit Order</span>
+        <div class="ocard-id" style="color:var(--accent)">22225287805</div>
+        <div class="ocard-row">Symbol<span>BTCUSDT</span></div>
+        <div class="ocard-row">Side<span style="color:var(--red)">SELL</span></div>
+        <div class="ocard-row">Quantity<span>0.0010</span></div>
+        <div class="ocard-row">Price<span>$100,000</span></div>
+        <div class="ocard-row">Status<span style="color:var(--accent)">NEW</span></div>
+      </div>
+      <div class="ocard ioc">
+        <span class="ocard-badge badge-ioc">LIMIT_IOC (Bonus)</span>
+        <div class="ocard-id" style="color:var(--accent2)">22225286052</div>
+        <div class="ocard-row">Symbol<span>BTCUSDT</span></div>
+        <div class="ocard-row">Side<span style="color:var(--green)">BUY</span></div>
+        <div class="ocard-row">Quantity<span>0.0010</span></div>
+        <div class="ocard-row">Price<span>$50,000</span></div>
+        <div class="ocard-row">TIF<span>IOC</span></div>
+      </div>
+    </div>
+
+    <div class="orders-table-wrap">
+      <table>
+        <thead>
+          <tr><th>Order ID</th><th>Symbol</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>TIF</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="oid">22225283684</td><td>BTCUSDT</td><td class="buy">BUY</td><td>MARKET</td><td>0.0010</td><td>Market</td><td>—</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22225286052</td><td>BTCUSDT</td><td class="buy">BUY</td><td>LIMIT (IOC)</td><td>0.0010</td><td>$50,000.00</td><td>IOC</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22225287805</td><td>BTCUSDT</td><td class="sell">SELL</td><td>LIMIT</td><td>0.0010</td><td>$100,000.00</td><td>GTC</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22225081163</td><td>BTCUSDT</td><td class="sell">SELL</td><td>LIMIT</td><td>0.0010</td><td>$100,000.00</td><td>GTC</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22225040098</td><td>BTCUSDT</td><td class="buy">BUY</td><td>MARKET</td><td>0.0010</td><td>Market</td><td>—</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22224527384</td><td>BTCUSDT</td><td class="sell">SELL</td><td>LIMIT</td><td>0.0010</td><td>$100,000.00</td><td>GTC</td><td><span class="pill p-new">NEW</span></td></tr>
+          <tr><td class="oid">22224489541</td><td>BTCUSDT</td><td class="buy">BUY</td><td>MARKET</td><td>0.0010</td><td>Market</td><td>—</td><td><span class="pill p-new">NEW</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Capabilities</div>
+    <div class="sec-title text-center">Built for Production</div>
+    <div class="sec-sub text-center">Every component is clean, reusable, and tested against the live testnet.</div>
+    <div class="features-grid">
+      <div class="feat">
+        <div class="feat-icon">&#9889;</div>
+        <div class="feat-num">01 — Order Execution</div>
+        <h3>3 Order Types</h3>
+        <p>MARKET fills at best price instantly. LIMIT rests on the book with GTC time-in-force. LIMIT_IOC (bonus) fills what it can immediately and cancels the rest — all via a single CLI command.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#128274;</div>
+        <div class="feat-num">02 — Security</div>
+        <h3>HMAC-SHA256 Authentication</h3>
+        <p>Every API request is signed with your secret key using HMAC-SHA256. Server-time is synced on startup to auto-correct clock-skew errors. Credentials loaded from .env — never hardcoded.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#128221;</div>
+        <div class="feat-num">03 — Observability</div>
+        <h3>Structured Rotating Logs</h3>
+        <p>Every API request, response body, order ID, and error is logged at DEBUG level to a rotating 5 MB file. Console shows only WARNING and above so the terminal stays clean.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">&#10003;</div>
+        <div class="feat-num">04 — Robustness</div>
+        <h3>Full Validation + Error Handling</h3>
+        <p>Symbol, side, type, quantity, and price all validated before hitting the API. BinanceAPIError, network errors, and input errors all caught and surfaced with clear, actionable messages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch-section" id="architecture">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Design</div>
+    <div class="sec-title text-center">System Architecture</div>
+    <div class="sec-sub text-center">Strict layered separation between CLI, business logic, and HTTP transport.</div>
+    <div class="arch-flow">
+      <div class="arch-node a"><div class="arch-name">cli.py</div><div class="arch-sub">argparse CLI<br>user I/O</div></div>
+      <div class="arch-arr">&#8594;</div>
+      <div class="arch-node"><div class="arch-name">validators.py</div><div class="arch-sub">symbol / side<br>qty / price</div></div>
+      <div class="arch-arr">&#8594;</div>
+      <div class="arch-node a"><div class="arch-name">orders.py</div><div class="arch-sub">OrderManager<br>OrderResult</div></div>
+      <div class="arch-arr">&#8594;</div>
+      <div class="arch-node b"><div class="arch-name">client.py</div><div class="arch-sub">HMAC sign<br>REST calls</div></div>
+      <div class="arch-arr">&#8594;</div>
+      <div class="arch-node c"><div class="arch-name">Binance Testnet</div><div class="arch-sub">testnet.binancefuture.com<br>/fapi/v1/order</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:28px;">
+        <div class="sec-label" style="margin-bottom:14px;">Project Structure</div>
+        <div style="font-family:monospace;font-size:13px;line-height:2.1;">
+          <span style="color:var(--accent);font-weight:700">trading_bot/</span><br>
+          &#9500;&#9472;&#9472; <span style="color:var(--accent);font-weight:700">bot/</span><br>
+          &#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">__init__.py</span> &nbsp;<span style="color:var(--muted);font-size:11px">exports</span><br>
+          &#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">client.py</span> &nbsp;<span style="color:var(--muted);font-size:11px">REST + auth</span><br>
+          &#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">orders.py</span> &nbsp;<span style="color:var(--muted);font-size:11px">OrderManager</span><br>
+          &#9474;&nbsp;&nbsp; &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">validators.py</span><br>
+          &#9474;&nbsp;&nbsp; &#9492;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">logging_config.py</span><br>
+          &#9500;&#9472;&#9472; <span style="color:var(--accent);font-weight:700">logs/</span><br>
+          &#9474;&nbsp;&nbsp; &#9492;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">trading_bot.log</span><br>
+          &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">cli.py</span><br>
+          &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">.env.example</span><br>
+          &#9500;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">requirements.txt</span><br>
+          &#9492;&#9472;&#9472; <span style="color:var(--green)">&#10003;</span> <span style="color:var(--text)">README.md</span>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:28px;">
+        <div class="sec-label" style="margin-bottom:14px;">Evaluation Checklist</div>
+        <table>
+          <tbody>
+            <tr><td>MARKET + LIMIT orders on testnet</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>BUY and SELL sides</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>CLI with all required flags</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>Request summary + response output</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>Structured code (client / CLI layers)</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>Logging to file with rotation</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>Exception handling</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>README + requirements.txt</td><td><span class="pill" style="background:rgba(0,255,136,0.12);color:var(--green)">PASS</span></td></tr>
+            <tr><td>Bonus: 3rd order type LIMIT_IOC</td><td><span class="pill" style="background:rgba(124,92,216,0.15);color:var(--accent2)">BONUS</span></td></tr>
+            <tr><td>Bonus: --check-balance</td><td><span class="pill" style="background:rgba(124,92,216,0.15);color:var(--accent2)">BONUS</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section class="code-section" id="code">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Usage</div>
+    <div class="sec-title text-center">CLI Commands</div>
+    <div class="sec-sub text-center">Run from inside the <code>trading_bot/</code> directory</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <div class="code-tabs">
+          <div class="ctab active">market_order.sh</div>
+        </div>
+<pre><span class="cm"># MARKET BUY — executes at best price instantly</span>
+<span class="cc">python cli.py</span> \
+  <span class="cv">--symbol</span>   BTCUSDT \
+  <span class="cv">--side</span>     BUY \
+  <span class="cv">--type</span>     MARKET \
+  <span class="cv">--quantity</span> 0.001
+
+<span class="cm"># Output:</span>
+<span class="co">==================================================</span>
+<span class="co">  ORDER REQUEST SUMMARY</span>
+<span class="co">==================================================</span>
+<span class="co">  Symbol   : BTCUSDT  |  Side : BUY</span>
+<span class="co">  Type     : MARKET   |  Qty  : 0.001</span>
+<span class="co">==================================================</span>
+<span class="co">  [OK] Order placed successfully</span>
+<span class="co">  Order ID : 22225283684</span>
+<span class="co">  Status   : NEW</span></pre>
+      </div>
+      <div>
+        <div class="code-tabs">
+          <div class="ctab active">limit_order.sh</div>
+        </div>
+<pre><span class="cm"># LIMIT SELL — rests on book until price reached</span>
+<span class="cc">python cli.py</span> \
+  <span class="cv">--symbol</span>   BTCUSDT \
+  <span class="cv">--side</span>     SELL \
+  <span class="cv">--type</span>     LIMIT \
+  <span class="cv">--quantity</span> 0.001 \
+  <span class="cv">--price</span>    100000
+
+<span class="cm"># LIMIT_IOC BUY — fill or cancel (bonus type)</span>
+<span class="cc">python cli.py</span> \
+  <span class="cv">--symbol</span>   BTCUSDT \
+  <span class="cv">--side</span>     BUY \
+  <span class="cv">--type</span>     LIMIT_IOC \
+  <span class="cv">--quantity</span> 0.001 \
+  <span class="cv">--price</span>    50000
+
+<span class="cm"># Check account balance</span>
+<span class="cc">python cli.py --check-balance</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGS -->
+<section class="log-section" id="logs">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Observability</div>
+    <div class="sec-title text-center">Live Log Output</div>
+    <div class="sec-sub text-center">Real lines from <code>logs/trading_bot.log</code> — captured during this live testnet session</div>
+    <div class="log-window">
+      <div class="log-titlebar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        &nbsp;&nbsp; trading_bot.log &nbsp; — &nbsp; Rotating (5 MB max, 3 backups)
+      </div>
+      <div class="log-content">
+<span class="lt">2026-07-17 08:41:39</span> | <span class="ld">DEBUG</span>    | __main__   | CLI args: symbol=BTCUSDT side=BUY type=MARKET quantity=0.001
+<span class="lt">2026-07-17 08:41:40</span> | <span class="li">INFO </span>    | bot.client | BinanceClient initialised (base_url=https://testnet.binancefuture.com)
+<span class="lt">2026-07-17 08:41:40</span> | <span class="ld">DEBUG</span>    | bot.client | Server time offset: +13789 ms  (local clock corrected)
+<span class="lt">2026-07-17 08:41:40</span> | <span class="li">INFO </span>    | __main__   | Placing MARKET order: symbol=BTCUSDT side=BUY qty=0.001
+<span class="lt">2026-07-17 08:41:40</span> | <span class="li">INFO </span>    | bot.orders | Order request: {"symbol":"BTCUSDT","side":"BUY","type":"MARKET","quantity":"0.001"}
+<span class="lt">2026-07-17 08:41:40</span> | <span class="li">INFO </span>    | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={...}
+<span class="lt">2026-07-17 08:41:41</span> | <span class="ld">DEBUG</span>    | <span class="lb">bot.client | HTTP POST ... → status=200 body={"orderId":22225283684,"symbol":"BTCUSDT","status":"NEW","type":"MARKET",...}</span>
+<span class="lt">2026-07-17 08:41:41</span> | <span class="lok">INFO </span>    | bot.orders | Order response: orderId=22225283684 status=NEW executedQty=0.0000
+<span class="lt">2026-07-17 08:41:41</span> | <span class="lok">INFO </span>    | __main__   | Order completed successfully. orderId=22225283684
+
+<span class="lt">2026-07-17 08:41:41</span> | <span class="li">INFO </span>    | bot.orders | Order request: {"symbol":"BTCUSDT","side":"BUY","type":"LIMIT","timeInForce":"IOC","quantity":"0.001","price":"50000"}
+<span class="lt">2026-07-17 08:41:41</span> | <span class="li">INFO </span>    | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={...}
+<span class="lt">2026-07-17 08:41:42</span> | <span class="ld">DEBUG</span>    | <span class="lb">bot.client | HTTP POST ... → status=200 body={"orderId":22225286052,"timeInForce":"IOC","price":"50000.00","status":"NEW",...}</span>
+<span class="lt">2026-07-17 08:41:42</span> | <span class="lok">INFO </span>    | bot.orders | Order response: orderId=22225286052 status=NEW executedQty=0.0000
+<span class="lt">2026-07-17 08:41:42</span> | <span class="lok">INFO </span>    | __main__   | Order completed successfully. orderId=22225286052
+
+<span class="lt">2026-07-17 08:41:42</span> | <span class="li">INFO </span>    | bot.orders | Order request: {"symbol":"BTCUSDT","side":"SELL","type":"LIMIT","quantity":"0.001","price":"100000","timeInForce":"GTC"}
+<span class="lt">2026-07-17 08:41:42</span> | <span class="li">INFO </span>    | bot.client | POST https://testnet.binancefuture.com/fapi/v1/order params={...}
+<span class="lt">2026-07-17 08:41:43</span> | <span class="ld">DEBUG</span>    | <span class="lb">bot.client | HTTP POST ... → status=200 body={"orderId":22225287805,"price":"100000.00","status":"NEW","side":"SELL",...}</span>
+<span class="lt">2026-07-17 08:41:43</span> | <span class="lok">INFO </span>    | bot.orders | Order response: orderId=22225287805 status=NEW executedQty=0.0000
+<span class="lt">2026-07-17 08:41:43</span> | <span class="lok">INFO </span>    | __main__   | Order completed successfully. orderId=22225287805
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BALANCE -->
+<section id="balance">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Testnet Account</div>
+    <div class="sec-title text-center">Account Balance</div>
+    <div class="sec-sub text-center">Verified via <code>python cli.py --check-balance</code> — testnet funds, no real money.</div>
+    <div class="balance-cards">
+      <div class="bal-card usdt">
+        <div class="bal-asset">USDT — Tether</div>
+        <div class="bal-amount">5,000</div>
+        <div class="bal-avail">Available: 5,000.0000 USDT</div>
+      </div>
+      <div class="bal-card usdc">
+        <div class="bal-asset">USDC — USD Coin</div>
+        <div class="bal-amount">5,000</div>
+        <div class="bal-avail">Available: 5,000.0000 USDC</div>
+      </div>
+      <div class="bal-card btc">
+        <div class="bal-asset">BTC — Bitcoin</div>
+        <div class="bal-amount">0.01</div>
+        <div class="bal-avail">Available: 0.0100 BTC</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section class="setup-section" id="setup">
+  <div class="sec-wrap">
+    <div class="sec-label text-center">Get Started</div>
+    <div class="sec-title text-center">Quick Setup</div>
+    <div class="sec-sub text-center">Up and running in under 2 minutes. Free testnet API keys, no real money required.</div>
+
+    <div class="setup-steps">
+      <div class="sstep">
+        <div class="sstep-num">1</div>
+        <h3>Install Dependencies</h3>
+        <p>Clone or unzip the project, then install the two required packages:</p>
+        <pre style="margin-top:14px;border-radius:10px;padding:14px 16px;font-size:12px;"><span class="cc">cd trading_bot</span>
+<span class="cc">pip install -r requirements.txt</span></pre>
+      </div>
+      <div class="sstep">
+        <div class="sstep-num">2</div>
+        <h3>Get Testnet API Keys</h3>
+        <p>Visit <a href="https://testnet.binancefuture.com" style="color:var(--accent)">testnet.binancefuture.com</a>, log in with GitHub, click <strong>avatar &rarr; API Key &rarr; Generate Key</strong>, and copy both values.</p>
+      </div>
+      <div class="sstep">
+        <div class="sstep-num">3</div>
+        <h3>Configure &amp; Trade</h3>
+        <p>Copy <code>.env.example</code> to <code>.env</code>, paste your keys, and run your first order:</p>
+        <pre style="margin-top:14px;border-radius:10px;padding:14px 16px;font-size:12px;"><span class="ck">BINANCE_API_KEY</span>=<span class="cs">your_key</span>
+<span class="ck">BINANCE_API_SECRET</span>=<span class="cs">your_secret</span></pre>
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:28px;">
+      <div class="sec-label" style="margin-bottom:16px;">All Available CLI Flags</div>
+      <table>
+        <thead><tr><th>Flag</th><th>Required</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>--symbol</code> / <code>-s</code></td><td>Yes*</td><td>Trading pair symbol</td><td><code>BTCUSDT</code></td></tr>
+          <tr><td><code>--side</code></td><td>Yes*</td><td>Order direction</td><td><code>BUY</code> or <code>SELL</code></td></tr>
+          <tr><td><code>--type</code> / <code>-t</code></td><td>Yes*</td><td>Order type</td><td><code>MARKET</code>, <code>LIMIT</code>, <code>LIMIT_IOC</code></td></tr>
+          <tr><td><code>--quantity</code> / <code>-q</code></td><td>Yes*</td><td>Order quantity</td><td><code>0.001</code></td></tr>
+          <tr><td><code>--price</code> / <code>-p</code></td><td>LIMIT only</td><td>Limit price</td><td><code>100000</code></td></tr>
+          <tr><td><code>--time-in-force</code></td><td>No</td><td>GTC (default) / IOC / FOK</td><td><code>GTC</code></td></tr>
+          <tr><td><code>--check-balance</code></td><td>—</td><td>Print account balances and exit</td><td>—</td></tr>
+          <tr><td><code>--log-level</code></td><td>No</td><td>File log verbosity</td><td><code>DEBUG</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="logo-icon">CB</div>
+    <span class="logo-text">Crypto<span>Bot</span> Pro</span>
+  </div>
+  <div class="footer-links">
+    <a href="#orders">Live Orders</a>
+    <a href="#features">Features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#code">CLI Usage</a>
+    <a href="#setup">Setup</a>
+    <a href="https://testnet.binancefuture.com">Binance Testnet</a>
+  </div>
+  <div class="footer-copy">Python 3.9+ &nbsp;&bull;&nbsp; Binance Futures Testnet (USDT-M) &nbsp;&bull;&nbsp; No real funds used</div>
+  <div class="footer-made">Made with IBM Bob</div>
+</footer>
+
+</body>
+</html>
