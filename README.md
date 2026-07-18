@@ -275,7 +275,7 @@ cd trading_bot/webapp
 python app.py
 ```
 
-Open **[http://localhost:5000](https://testnut-binance-4.onrender.com)** to:
+Open **(https://testnut-binance-4.onrender.com)** to:
 - Place orders from a browser UI
 - Check live balances
 - View order history
