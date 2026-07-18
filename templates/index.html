@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoBot Pro — Binance Futures Testnet</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">CB</div>
+    <div>
+      <div class="logo-name">CryptoBot Pro</div>
+      <div class="logo-sub">Binance Futures Testnet</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" data-tab="dashboard">
+      <span class="nav-icon">&#9632;</span> Dashboard
+    </a>
+    <a href="#" class="nav-item" data-tab="place-order">
+      <span class="nav-icon">&#9654;</span> Place Order
+    </a>
+    <a href="#" class="nav-item" data-tab="history">
+      <span class="nav-icon">&#9776;</span> Order History
+    </a>
+    <a href="#" class="nav-item" data-tab="logs">
+      <span class="nav-icon">&#128221;</span> Live Logs
+    </a>
+    <a href="#" class="nav-item" data-tab="settings">
+      <span class="nav-icon">&#9881;</span> API Settings
+    </a>
+    <a href="#" class="nav-item" data-tab="ai-bot">
+      <span class="nav-icon">&#129302;</span> AI Bot
+    </a>
+  </nav>
+
+  <div class="sidebar-status">
+    <div class="status-dot" id="conn-dot"></div>
+    <span id="conn-label">Not Connected</span>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menuBtn">&#9776;</button>
+      <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="ticker-wrap">
+        <span class="ticker-item"><b>BTC/USDT</b> <span class="up">$107,432</span></span>
+        <span class="ticker-item"><b>ETH/USDT</b> <span class="up">$3,842</span></span>
+        <span class="ticker-item"><b>BNB/USDT</b> <span class="down">$718</span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ DASHBOARD TAB ═══ -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="page-title">Dashboard</div>
+
+    <!-- Stat cards -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,255,136,0.12);color:#00ff88">&#9632;</div>
+        <div>
+          <div class="stat-val" id="stat-usdt">—</div>
+          <div class="stat-lbl">USDT Balance</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,212,255,0.12);color:#00d4ff">&#9650;</div>
+        <div>
+          <div class="stat-val" id="stat-orders">{{ orders|length if orders else 0 }}</div>
+          <div class="stat-lbl">Orders This Session</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(124,92,216,0.12);color:#a78bfa">&#9679;</div>
+        <div>
+          <div class="stat-val" id="stat-btc">—</div>
+          <div class="stat-lbl">BTC Balance</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(255,165,2,0.12);color:#ffa502">&#9881;</div>
+        <div>
+          <div class="stat-val" style="color:#00ff88" id="stat-net">Testnet</div>
+          <div class="stat-lbl">Network</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick order + recent side by side -->
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-title">Quick Market Order</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Symbol</label>
+            <select id="q-symbol" class="input">
+              <option>BTCUSDT</option>
+              <option>ETHUSDT</option>
+              <option>BNBUSDT</option>
+              <option>SOLUSDT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="q-qty" class="input" value="0.001" step="0.001" min="0.001">
+          </div>
+        </div>
+        <div class="quick-btns">
+          <button class="btn btn-buy" id="q-buy">BUY MARKET</button>
+          <button class="btn btn-sell" id="q-sell">SELL MARKET</button>
+        </div>
+        <div class="quick-result" id="q-result" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recent Orders</div>
+        <div class="mini-table-wrap">
+          <table class="mini-table" id="dash-recent">
+            <thead><tr><th>ID</th><th>Side</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody id="dash-recent-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No orders yet this session</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance table -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">Account Balances <button class="btn-sm" id="refresh-balance">Refresh</button></div>
+      <div id="balance-content">
+        <div style="text-align:center;color:var(--muted);padding:32px">Connect your API keys in Settings to see balances.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PLACE ORDER TAB ═══ -->
+  <div class="tab-content" id="tab-place-order">
+    <div class="page-title">Place Order</div>
+
+    <div class="order-layout">
+      <!-- Form -->
+      <div class="card order-form-card">
+        <div class="card-title">New Order</div>
+
+        <!-- Order type selector -->
+        <div class="type-selector">
+          <button class="type-btn active" data-type="MARKET">MARKET</button>
+          <button class="type-btn" data-type="LIMIT">LIMIT</button>
+          <button class="type-btn" data-type="LIMIT_IOC">LIMIT_IOC</button>
+        </div>
+        <input type="hidden" id="o-type" value="MARKET">
+
+        <div class="form-group">
+          <label>Symbol</label>
+          <select id="o-symbol" class="input">
+            <option>BTCUSDT</option>
+            <option>ETHUSDT</option>
+            <option>BNBUSDT</option>
+            <option>SOLUSDT</option>
+            <option>XRPUSDT</option>
+            <option>DOGEUSDT</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Side</label>
+            <div class="side-toggle">
+              <button class="side-btn active buy" data-side="BUY">BUY</button>
+              <button class="side-btn sell" data-side="SELL">SELL</button>
+            </div>
+            <input type="hidden" id="o-side" value="BUY">
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="o-qty" class="input" value="0.001" step="0.001" min="0.001" placeholder="e.g. 0.001">
+          </div>
+        </div>
+
+        <div class="form-group" id="price-group" style="display:none">
+          <label>Price <span style="color:var(--muted);font-weight:400">(required for LIMIT)</span></label>
+          <input type="number" id="o-price" class="input" placeholder="e.g. 100000" min="0">
+        </div>
+
+        <div class="form-group" id="tif-group" style="display:none">
+          <label>Time In Force</label>
+          <select id="o-tif" class="input">
+            <option value="GTC">GTC — Good Till Cancel</option>
+            <option value="IOC">IOC — Immediate Or Cancel</option>
+          </select>
+        </div>
+
+        <!-- Summary preview -->
+        <div class="order-preview" id="order-preview">
+          <div class="preview-row"><span>Symbol</span><span id="prev-symbol">BTCUSDT</span></div>
+          <div class="preview-row"><span>Side</span><span id="prev-side" style="color:#00ff88">BUY</span></div>
+          <div class="preview-row"><span>Type</span><span id="prev-type">MARKET</span></div>
+          <div class="preview-row"><span>Quantity</span><span id="prev-qty">0.001</span></div>
+          <div class="preview-row" id="prev-price-row" style="display:none"><span>Price</span><span id="prev-price">—</span></div>
+        </div>
+
+        <button class="btn btn-place" id="place-btn">Place Order</button>
+        <div id="order-spinner" style="display:none;text-align:center;margin-top:12px">
+          <div class="spinner"></div> Placing order...
+        </div>
+      </div>
+
+      <!-- Result panel -->
+      <div class="card order-result-card">
+        <div class="card-title">Order Result</div>
+        <div id="order-result-content">
+          <div style="text-align:center;color:var(--muted);padding:48px 24px">
+            <div style="font-size:36px;margin-bottom:12px">&#9654;</div>
+            <div>Fill in the form and click Place Order</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ORDER HISTORY TAB ═══ -->
+  <div class="tab-content" id="tab-history">
+    <div class="page-title">Order History <button class="btn-sm" style="margin-left:12px" id="refresh-history">Refresh</button></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table" id="history-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Order ID</th>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Type</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">No orders placed this session yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LOGS TAB ═══ -->
+  <div class="tab-content" id="tab-logs">
+    <div class="page-title">Live Logs <button class="btn-sm" id="refresh-logs" style="margin-left:12px">Refresh</button> <button class="btn-sm" id="clear-logs" style="margin-left:6px">Clear</button></div>
+    <div class="card">
+      <div class="log-window">
+        <div class="log-titlebar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:8px;font-size:12px;color:var(--muted)">logs/trading_bot.log — last 100 lines</span>
+        </div>
+        <div class="log-body" id="log-body">
+          <div style="color:var(--muted);padding:16px">Click Refresh to load logs...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SETTINGS TAB ═══ -->
+  <div class="tab-content" id="tab-settings">
+    <div class="page-title">API Settings</div>
+
+    <div class="card settings-card">
+      <div class="card-title">Binance Futures Testnet Credentials</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:24px">
+        These keys are only stored in your browser session (sessionStorage) — never sent to any third party. Used only to sign requests directly to <strong>testnet.binancefuture.com</strong>.
+      </p>
+
+      <div class="form-group">
+        <label>API Key <span style="color:var(--muted);font-weight:400">(64 characters)</span></label>
+        <input type="text" id="s-apikey" class="input input-mono" placeholder="Paste your testnet API key here..." autocomplete="off" spellcheck="false">
+      </div>
+      <div class="form-group">
+        <label>API Secret <span style="color:var(--muted);font-weight:400">(64 characters)</span></label>
+        <input type="password" id="s-secret" class="input input-mono" placeholder="Paste your testnet API secret here..." autocomplete="off" spellcheck="false">
+        <button class="btn-sm" id="toggle-secret" style="margin-top:6px">Show Secret</button>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button class="btn btn-primary" id="save-keys">Save & Connect</button>
+        <button class="btn btn-outline" id="test-keys">Test Connection</button>
+        <button class="btn btn-danger" id="clear-keys">Clear Keys</button>
+      </div>
+
+      <div id="conn-result" style="margin-top:16px;display:none"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">How to Get Testnet API Keys</div>
+      <ol style="color:var(--muted);font-size:13px;line-height:2.4;padding-left:20px">
+        <li>Go to <a href="https://testnet.binancefuture.com" target="_blank" style="color:var(--accent)">testnet.binancefuture.com</a></li>
+        <li>Click <strong style="color:var(--text)">"Log In with GitHub"</strong> (free GitHub account required)</li>
+        <li>Click your <strong style="color:var(--text)">avatar</strong> (top-right) &rarr; <strong style="color:var(--text)">"API Key"</strong></li>
+        <li>Click <strong style="color:var(--text)">"Generate Key"</strong></li>
+        <li>Copy both the <strong style="color:var(--text)">API Key</strong> and <strong style="color:var(--text)">Secret Key</strong> (shown once!)</li>
+        <li>Paste them in the fields above and click <strong style="color:var(--text)">Save &amp; Connect</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ═══ AI BOT TAB ═══ -->
+  <div class="tab-content" id="tab-ai-bot">
+    <div class="page-title">AI Trading Assistant</div>
+    <div class="chat-layout">
+      <div class="chat-main card">
+        <div class="chat-header">
+          <div class="bot-avatar">
+            <div class="bot-avatar-inner">AI</div>
+            <div class="bot-online-dot"></div>
+          </div>
+          <div>
+            <div class="bot-name">CryptoBot AI</div>
+            <div class="bot-status">Online — Binance Futures Expert</div>
+          </div>
+          <button class="btn-sm" id="clear-chat" style="margin-left:auto">Clear Chat</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg bot">
+            <div class="msg-bubble">Hey! I'm <b>CryptoBot AI</b> - your Binance Futures trading assistant.
+
+I can help you with:
+- How to place MARKET / LIMIT / IOC orders
+- Understanding order types and status
+- Setting up API keys and balances
+- Trading strategies and error fixes
+
+What would you like to know?</div>
+            <div class="msg-time">Just now</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything... e.g. How do I place a limit order?">
+          <button class="chat-send-btn" id="chat-send">&#9654;</button>
+        </div>
+      </div>
+
+      <div class="chat-sidebar">
+        <div class="card">
+          <div class="card-title">Quick Questions</div>
+          <div class="quick-qs" id="quick-qs">
+            <button class="qq-btn">What is a market order?</button>
+            <button class="qq-btn">How do I place a limit order?</button>
+            <button class="qq-btn">What is LIMIT_IOC?</button>
+            <button class="qq-btn">How do I get API keys?</button>
+            <button class="qq-btn">What is my balance?</button>
+            <button class="qq-btn">Explain order status</button>
+            <button class="qq-btn">What symbols can I trade?</button>
+            <button class="qq-btn">Minimum quantity?</button>
+            <button class="qq-btn">Give me a trading strategy</button>
+            <button class="qq-btn">Common errors and fixes</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">Bot Capabilities</div>
+          <div style="font-size:12px;color:var(--muted);line-height:2.2">
+            <div>&#10003; Order type explanations</div>
+            <div>&#10003; Step-by-step placement guide</div>
+            <div>&#10003; API key setup instructions</div>
+            <div>&#10003; Error diagnosis and fixes</div>
+            <div>&#10003; Balance and account info</div>
+            <div>&#10003; Trading strategy suggestions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
